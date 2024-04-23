@@ -1,4 +1,4 @@
-import logo from "./logo.svg";
+import { useState } from "react";
 import "./App.css";
 
 const initialFriends = [
@@ -21,86 +21,142 @@ const initialFriends = [
     balance: 0,
   },
 ];
+// Button using children prop
+function Button({ children, onClick }) {
+  return (
+    <button className="button" onClick={onClick}>
+      {children}
+    </button>
+  );
+}
 
+/////////////////////////////////////////////////////// App functions
 export default function App() {
-  return <Eatnsplit initialFriends={initialFriends} />;
-}
+  const [friend, setFriend] = useState(true);
 
-function Eatnsplit({ initialFriends }) {
-  return (
-    <div className="App">
-      <Listoffriends initialFriends={initialFriends} />
-      <Splitabill />
-      <AddFriend />
-    </div>
-  );
-}
+  // Addfriend button
+  function handleaddfriend() {
+    setFriend(() => !friend);
+  }
 
-function Listoffriends({ initialFriends }) {
-  console.log(initialFriends, "sjsjdfj");
   return (
-    <div className="Listoffriends">
-      {initialFriends.map((items) => (
-        <Friends img={items.image} name={items.name} balance={items.balance} />
-      ))}
-    </div>
-  );
-}
-
-function Friends({ img, name, balance }) {
-  return (
-    <div className="friends">
-      <img src={img} alt={name} />
-      <div className="name">
-        <h4>{name}</h4>
-        <p>{balance}</p>
+    <div className="app">
+      <div className="sidebar">
+        <Friendlist />
+        {friend && <AddFriend />}
+        <Button onClick={handleaddfriend}>
+          {!friend === true ? "Add-Friend" : "Close"}
+        </Button>
       </div>
-      <button className="select">select</button>
+      <Splitabill />
     </div>
   );
 }
+
+/////////////////////////////////////////////////////// friendslist
+
+function Friendlist() {
+  const friends = initialFriends;
+  return (
+    <ul>
+      {friends.map((friend) => (
+        <Friend friend={friend} key={friend.id} />
+      ))}
+    </ul>
+  );
+}
+
+function Friend({ friend }) {
+  return (
+    <li className="selected">
+      <img src={friend.image} alt={friend.name} />
+      <h3>{friend.name}</h3>
+      {friend.balance < 0 && (
+        <p className="red">
+          you own {friend.name} {Math.abs(friend.balance)}€
+        </p>
+      )}
+      {friend.balance > 0 && (
+        <p className="green">
+          you own {friend.name} {Math.abs(friend.balance)}€
+        </p>
+      )}
+      {friend.balance === 0 && (
+        <p>
+          you own {friend.name} {Math.abs(friend.balance)}€
+        </p>
+      )}
+      <Button>Select</Button>
+    </li>
+  );
+}
+
+/////////////////////////////////////////////////////// Addfriend
 
 function AddFriend(params) {
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("");
+
+  const handleSubmit = (e) => {
+    // for reload
+    e.preventDefault();
+    // kept id on a variable
+    const id = crypto.randomUUID();
+    // create newfriend object
+
+    //
+    if (!name || !image) return;
+
+    const newfriend = {
+      id,
+      name,
+      image: `${image}?=${id}`,
+      balance: 0,
+    };
+
+    // console.log(newfriend);
+    console.log("sucess--submit", newfriend);
+    setName("");
+    setImage("https://i.pravatar.cc/48");
+  };
+
   return (
-    <div className="addfriends">
-      <div className="friendname">
-        <h4> 🧑‍🤝‍🧑 Friend name </h4>
-        <input className="text" type="text"></input>
-      </div>
-      <div className="friendname">
-        <h4> 🌅 Image URL </h4>
-        <input className="text" type="text"></input>
-      </div>
-      <button className="add">Add</button>
-    </div>
+    <form className="form-add-friend" onSubmit={(e) => handleSubmit(e)}>
+      <label> 🧑‍🤝‍🧑 Friend name </label>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      ></input>
+      <label> 🌅 Image URL </label>
+      <input
+        type="text"
+        value={image}
+        onChange={(e) => setImage(e.target.value)}
+      ></input>
+      <Button>ADD</Button>
+    </form>
   );
 }
+
+//////////////////////////////////////////////////////splite bill
 
 function Splitabill() {
   return (
-    <div className="splitabill">
-      <h3> SPLIT A BILL WITH SARAH </h3>
-      <div className="billdetails">
-        <div>
-          <label> 💰 Bill value </label>
-          <input type="text"></input>
-        </div>
-        <div>
-          <label> 🧍‍♀️ Your expense </label>
-          <input type="text"></input>
-        </div>
-        <div>
-          <label> 🧑‍🤝‍🧑 pn expense </label>
-          <input type="text"></input>
-        </div>
-        <div>
-          <label> 🤑 Who is paying the bill</label>
-          <select>
-            <option>You</option>
-            <option>person</option>
-          </select>
-        </div>
-      </div>
-    </div>
+    <form className="form-split-bill">
+      <h2> SPLIT A BILL WITH SARAH </h2>
+      <label> 💰 Bill value </label>
+      <input type="text"></input>
+      <label> 🧍‍♀️ Your expense </label>
+      <input type="text"></input>
+      <label> 🧑‍🤝‍🧑 pn expense </label>
+      <input type="text"></input>
+      <label> 🤑 Who is paying the bill</label>
+      <select>
+        <option>You</option>
+        <option>person</option>
+      </select>
+      <Button>Splitabill</Button>
+    </form>
   );
 }
